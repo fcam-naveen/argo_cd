@@ -1,0 +1,43 @@
+# Active Service — points to the STABLE (blue) version.
+# Argo Rollouts manages the selector to always point to the live ReplicaSet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.active.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fastapi-app.labels" . | nindent 4 }}
+    service-type: active
+spec:
+  type: {{ .Values.service.active.type }}
+  selector:
+    # Argo Rollouts will inject/update the rollouts-pod-template-hash selector
+    # automatically to route to the active ReplicaSet.
+    {{- include "fastapi-app.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.active.port }}
+      targetPort: {{ .Values.service.active.targetPort }}
+      protocol: TCP
+---
+# Preview Service — points to the NEW (green) candidate ReplicaSet.
+# Use this to test the new version before promoting it to production.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.preview.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fastapi-app.labels" . | nindent 4 }}
+    service-type: preview
+spec:
+  type: {{ .Values.service.preview.type }}
+  selector:
+    # Argo Rollouts will inject/update the rollouts-pod-template-hash selector
+    # automatically to route to the preview ReplicaSet.
+    {{- include "fastapi-app.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.preview.port }}
+      targetPort: {{ .Values.service.preview.targetPort }}
+      protocol: TCP

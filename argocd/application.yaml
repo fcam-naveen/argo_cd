@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fastapi-blue-green
+  namespace: argocd          # Must be deployed into the argocd namespace
+  labels:
+    app.kubernetes.io/name: fastapi-blue-green
+  # Finalizer ensures the app is fully deleted before the CRD is removed
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    # TODO: replace with your actual Git repository URL
+    repoURL: https://github.com/YOUR_USERNAME/YOUR_REPO.git
+    targetRevision: HEAD
+    path: helm/fastapi-app
+
+    helm:
+      # Values file already committed in the chart — override per environment here
+      valueFiles:
+        - values.yaml
+      # Inline overrides (optional, useful for CI-driven image tag bumps)
+      # parameters:
+      #   - name: image.tag
+      #     value: "v2.0.0"
+      #   - name: app.color
+      #     value: "green"
+      #   - name: app.version
+      #     value: "v2.0.0"
+
+  destination:
+    server: https://kubernetes.default.svc   # in-cluster; change for remote clusters
+    namespace: fastapi-demo
+
+  syncPolicy:
+    automated:
+      prune: true       # remove resources no longer in Git
+      selfHeal: true    # revert manual cluster changes
+    syncOptions:
+      - CreateNamespace=true   # create fastapi-demo ns if it doesn't exist
+      - ServerSideApply=true   # avoid annotation size limits on large resources
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

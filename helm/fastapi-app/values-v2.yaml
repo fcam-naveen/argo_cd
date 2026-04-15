@@ -1,0 +1,9 @@
+# values-v2.yaml — the new "green" release (v2)
+# Commit this file and update argocd/application.yaml to reference it
+# to trigger a blue-green rollout.
+image:
+  tag: "v2.0.0"
+
+app:
+  color: "green"
+  version: "v2.0.0"

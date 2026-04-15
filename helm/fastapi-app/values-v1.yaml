@@ -1,0 +1,8 @@
+# values-v1.yaml — the initial "blue" release (v1)
+# Used to deploy or reference the stable version.
+image:
+  tag: "v1.0.0"
+
+app:
+  color: "blue"
+  version: "v1.0.0"

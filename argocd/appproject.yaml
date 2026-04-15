@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: fastapi-demo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "Blue-green demo project for FastAPI"
+
+  # Allow syncing from your Git repository
+  sourceRepos:
+    - https://github.com/YOUR_USERNAME/YOUR_REPO.git
+
+  # Allow deploying to the fastapi-demo namespace only
+  destinations:
+    - namespace: fastapi-demo
+      server: https://kubernetes.default.svc
+
+  # Allowed resource kinds (add more as needed)
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: "argoproj.io"
+      kind: Rollout
+    - group: ""
+      kind: Service
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: ""
+      kind: ServiceAccount
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: ReplicaSet

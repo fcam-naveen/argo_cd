@@ -1,0 +1,75 @@
+# Default values for fastapi-app.
+# This is a YAML-formatted file.
+
+replicaCount: 2
+
+image:
+  repository: your-dockerhub-username/fastapi-blue-green
+  pullPolicy: IfNotPresent
+  # Override this for each release: v1.0.0 (blue), v2.0.0 (green), etc.
+  tag: "v1.0.0"
+
+# APP_COLOR and APP_VERSION are set via env to identify which slot is active
+app:
+  color: "blue"
+  version: "v1.0.0"
+
+service:
+  # Active service — receives production traffic
+  active:
+    name: fastapi-active
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  # Preview service — receives the new (green) version traffic before promotion
+  preview:
+    name: fastapi-preview
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+
+rollout:
+  # Set to true to auto-promote after analysis; false = manual approval required
+  autoPromotionEnabled: false
+  # Seconds to wait before auto-promoting (only relevant if autoPromotionEnabled: true)
+  autoPromotionSeconds: 30
+  # How many old ReplicaSets to keep for rollback
+  revisionHistoryLimit: 3
+  # Scale-down delay for old (blue) ReplicaSet after promotion (seconds)
+  scaleDownDelaySeconds: 30
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Optional: expose via Ingress
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: fastapi.example.com
+  tls: []
+
+serviceAccount:
+  create: false
+  name: ""
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

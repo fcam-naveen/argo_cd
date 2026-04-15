@@ -1,0 +1,87 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "fastapi-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fastapi-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.rollout.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "fastapi-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fastapi-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/version: {{ .Values.app.version | quote }}
+        app.color: {{ .Values.app.color | quote }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "fastapi-app.serviceAccountName" . }}
+      {{- end }}
+      containers:
+        - name: fastapi
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: APP_VERSION
+              value: {{ .Values.app.version | quote }}
+            - name: APP_COLOR
+              value: {{ .Values.app.color | quote }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  strategy:
+    blueGreen:
+      # activeService routes production traffic to the current stable (blue) version
+      activeService: {{ .Values.service.active.name }}
+      # previewService routes traffic to the new (green) candidate before promotion
+      previewService: {{ .Values.service.preview.name }}
+      # false = manual promotion via `kubectl argo rollouts promote`
+      autoPromotionEnabled: {{ .Values.rollout.autoPromotionEnabled }}
+      {{- if .Values.rollout.autoPromotionEnabled }}
+      autoPromotionSeconds: {{ .Values.rollout.autoPromotionSeconds }}
+      {{- end }}
+      # Keep old ReplicaSet scaled down (not deleted) for fast rollback
+      scaleDownDelaySeconds: {{ .Values.rollout.scaleDownDelaySeconds }}

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: fastapi-app
+description: FastAPI application with Argo Rollouts blue-green deployment strategy
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - fastapi
+  - blue-green
+  - argo-rollouts
+maintainers:
+  - name: platform-team
