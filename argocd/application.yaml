@@ -21,7 +21,7 @@ spec:
       # Values file already committed in the chart — override per environment here
       valueFiles:
         - values.yaml
-        - values-v2.yaml
+        - values-v3.yaml
       # Inline overrides (optional, useful for CI-driven image tag bumps)
       # parameters:
       #   - name: image.tag
