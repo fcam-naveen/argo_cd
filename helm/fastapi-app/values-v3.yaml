@@ -2,8 +2,8 @@
 # Commit this file and update argocd/application.yaml to reference it
 # to trigger a blue-green rollout.
 image:
-  tag: "v4.0.0"
+  tag: "v5.0.0"
 
 app:
-  color: "yellow-1"
-  version: "v4.0.0"
+  color: "yellow-2"
+  version: "v5.0.0"
