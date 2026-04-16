@@ -13,7 +13,7 @@ spec:
 
   source:
     # TODO: replace with your actual Git repository URL
-    repoURL: https://github.com/YOUR_USERNAME/YOUR_REPO.git
+    repoURL: https://github.com/fcam-naveen/argo_cd.git
     targetRevision: HEAD
     path: helm/fastapi-app
 
