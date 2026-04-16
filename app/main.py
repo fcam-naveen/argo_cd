@@ -3,7 +3,7 @@ import os
 
 app = FastAPI(title="FastAPI Blue-Green Demo")
 
-APP_VERSION = os.getenv("APP_VERSION", "v1.0.0")
+APP_VERSION = os.getenv("APP_VERSION", "v2.0.0")
 APP_COLOR = os.getenv("APP_COLOR", "blue")
 
 

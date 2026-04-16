@@ -10,7 +10,7 @@ spec:
 
   # Allow syncing from your Git repository
   sourceRepos:
-    - https://github.com/YOUR_USERNAME/YOUR_REPO.git
+    - https://github.com/fcam-naveen/argo_cd.git
 
   # Allow deploying to the fastapi-demo namespace only
   destinations:

@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: your-dockerhub-username/fastapi-blue-green
+  repository: cnaveenss/fastapi-blue-green
   pullPolicy: IfNotPresent
   # Override this for each release: v1.0.0 (blue), v2.0.0 (green), etc.
   tag: "v1.0.0"
